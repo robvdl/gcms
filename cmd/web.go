@@ -16,7 +16,7 @@ var CmdWeb = cli.Command{
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:   "config, c",
-			Value:  "/etc/default/gcms",
+			Value:  "/etc/default/" + config.AppName,
 			Usage:  "Configuration file path",
 			EnvVar: "",
 		},
@@ -24,6 +24,9 @@ var CmdWeb = cli.Command{
 }
 
 func runWeb(ctx *cli.Context) {
+	// loads the configuration file, can be overriden using a flag
+	config.Load(ctx.String("config"))
+
 	r := router.NewRouter()
 	r.Run(":" + config.Config.Port)
 }
