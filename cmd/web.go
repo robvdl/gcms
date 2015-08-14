@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"github.com/codegangsta/cli"
-	"github.com/gin-gonic/gin"
 
 	"github.com/robvdl/gcms/config"
+	"github.com/robvdl/gcms/router"
 )
 
 // CmdWeb starts the web server
@@ -24,9 +24,6 @@ var CmdWeb = cli.Command{
 }
 
 func runWeb(ctx *cli.Context) {
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.String(200, "pong")
-	})
+	r := router.NewRouter()
 	r.Run(":" + config.Config.Port)
 }
