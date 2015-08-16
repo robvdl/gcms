@@ -5,9 +5,11 @@ import (
 	"runtime"
 
 	"github.com/codegangsta/cli"
+	_ "github.com/lib/pq"
 
 	"github.com/robvdl/gcms/cmd"
 	"github.com/robvdl/gcms/config"
+	"github.com/robvdl/gcms/db"
 )
 
 func init() {
@@ -17,12 +19,18 @@ func init() {
 }
 
 func main() {
+	// Connect to the database, the connection is stored in db.DB
+	// This allows the connection to be imported and used by sub-modules.
+	db.Connect()
+
+	// Migrate runs gorms AutoMigrate function on all the models
+	db.Migrate()
+
+	// Defines a cli application
 	app := cli.NewApp()
 	app.Name = config.AppName
 	app.Usage = "Content management system"
 	app.Version = config.AppVersion
-
-	// list of available commands
 	app.Commands = []cli.Command{
 		cmd.CmdWeb,
 	}
