@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -35,5 +36,12 @@ func Load(filename string) {
 	err = envconfig.Process(AppName, &Config)
 	if err != nil {
 		log.Fatal(err.Error())
+	}
+
+	// Set Gin release or debug mode based on Config.Debug
+	if Config.Debug {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
 	}
 }

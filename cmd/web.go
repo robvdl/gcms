@@ -4,6 +4,7 @@ import (
 	"github.com/codegangsta/cli"
 
 	"github.com/robvdl/gcms/config"
+	"github.com/robvdl/gcms/db"
 	"github.com/robvdl/gcms/router"
 )
 
@@ -26,6 +27,10 @@ var CmdWeb = cli.Command{
 func runWeb(ctx *cli.Context) {
 	// loads the configuration file, can be overriden using a flag
 	config.Load(ctx.String("config"))
+
+	// establish database connection after config file is loaded
+	db.Connect()
+	db.Migrate()
 
 	r := router.NewRouter()
 	r.Run(":" + config.Config.Port)
