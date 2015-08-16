@@ -42,14 +42,15 @@ func Migrate() {
 // relationships in bridge tables created by gorm (see issue #619)
 func addBridgeTableConstraints(parent, child string) {
 	bridgeTable := parent + "_" + child
-	parentID := parent + "_id"
-	childID := child + "_id"
-	addPK := "ALTER TABLE %s ADD CONSTRAINT %s_pkey PRIMARY KEY (%s, %s)"
-	addFK := "ALTER TABLE %s ADD CONSTRAINT %s_fkey FOREIGN KEY (%s) REFERENCES \"%s\" (id)"
 
 	var constraintExists int
 	DB.Table("pg_constraint").Select("1").Where("conname = '" + bridgeTable + "_pkey'").Count(&constraintExists)
 	if constraintExists == 0 {
+		parentID := parent + "_id"
+		childID := child + "_id"
+		addPK := "ALTER TABLE %s ADD CONSTRAINT %s_pkey PRIMARY KEY (%s, %s)"
+		addFK := "ALTER TABLE %s ADD CONSTRAINT %s_fkey FOREIGN KEY (%s) REFERENCES \"%s\" (id)"
+
 		DB.Exec(fmt.Sprintf(addPK, bridgeTable, bridgeTable, parentID, childID))
 		DB.Exec(fmt.Sprintf(addFK, bridgeTable, parent, parentID, parent))
 		DB.Exec(fmt.Sprintf(addFK, bridgeTable, child, childID, child))
