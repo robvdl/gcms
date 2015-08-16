@@ -38,7 +38,7 @@ func Migrate() {
 	addBridgeTableConstraints("user", "group")
 }
 
-// AddBridgeTableConstraints adds in the missing primary and foreign key
+// addBridgeTableConstraints adds in the missing primary and foreign key
 // relationships in bridge tables created by gorm (see issue #619)
 func addBridgeTableConstraints(parent, child string) {
 	bridgeTable := parent + "_" + child
