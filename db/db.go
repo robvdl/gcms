@@ -5,6 +5,8 @@ import (
 	"log"
 
 	"github.com/jinzhu/gorm"
+
+	"github.com/robvdl/gcms/config"
 	"github.com/robvdl/gcms/models"
 )
 
@@ -16,7 +18,7 @@ var DB gorm.DB
 func Connect() {
 	// TODO: 12 factor connection string to postgres connection string conversion
 	var err error
-	DB, err = gorm.Open("postgres", "user=gcms dbname=gcms password=gcms sslmode=disable")
+	DB, err = gorm.Open("postgres", config.Config.DatabaseURL)
 	if err != nil {
 		log.Fatal(err.Error())
 	}

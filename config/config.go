@@ -15,8 +15,9 @@ const AppVersion = "0.1"
 
 // AppConfig struct is for storing application configuration
 type AppConfig struct {
-	Debug bool   `default:"true"`
-	Port  string `default:"8080"`
+	Debug       bool   `default:"true"`
+	Port        string `default:"8080"`
+	DatabaseURL string `envconfig:"DB"`
 }
 
 // Config stores the global application configuration instance
