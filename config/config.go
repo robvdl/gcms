@@ -24,9 +24,6 @@ var Config AppConfig
 // If neither was found we rely entiry on environment variables (12-factor).
 func LoadAppConfig(project string) {
 	filename := "/etc/default/" + project
-
-	// This code tries to find the config file in two locations but doesn't fail
-	// if it wasn't found in either, then we use environment vars only.
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
 		filename = ".env"
 		if _, err := os.Stat(filename); os.IsNotExist(err) {
