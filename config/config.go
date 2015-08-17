@@ -2,17 +2,12 @@ package config
 
 import (
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
-
-// AppName is the name of the application and defines the config file location
-const AppName = "gcms"
-
-// AppVersion is the application version, build this from Git tag later
-const AppVersion = "0.1"
 
 // AppConfig struct is for storing application configuration
 type AppConfig struct {
@@ -24,16 +19,27 @@ type AppConfig struct {
 // Config stores the global application configuration instance
 var Config AppConfig
 
-// Load a configuration file into the Config struct
-func Load(filename string) {
-	// godotenv reads a config file into environment variables
-	err := godotenv.Load(filename)
-	if err != nil {
-		log.Fatal(err.Error())
+// LoadAppConfig will try to load the config file /etc/default/appname first
+// if that exists, otherwise it will try .env in the current directory.
+// If neither was found we rely entiry on environment variables (12-factor).
+func LoadAppConfig(project string) {
+	filename := "/etc/default/" + project
+
+	// This code tries to find the config file in two locations but doesn't fail
+	// if it wasn't found in either, then we use environment vars only.
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		filename = ".env"
+		if _, err := os.Stat(filename); os.IsNotExist(err) {
+			log.Printf("No configuration file used, using environment variables only")
+		} else {
+			loadEnvConfig(filename)
+		}
+	} else {
+		loadEnvConfig(filename)
 	}
 
-	// envconfig loads environment variables into the Config struct
-	err = envconfig.Process(AppName, &Config)
+	// envconfig then loads environment variables into the Config struct
+	err := envconfig.Process(project, &Config)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -43,5 +49,16 @@ func Load(filename string) {
 		gin.SetMode(gin.DebugMode)
 	} else {
 		gin.SetMode(gin.ReleaseMode)
+	}
+}
+
+// loadEnvConfig loads an environment configuration file into the Config struct
+func loadEnvConfig(filename string) {
+	log.Printf("Loading environment configuration file: %s", filename)
+
+	// godotenv reads a config file into environment variables first
+	err := godotenv.Load(filename)
+	if err != nil {
+		log.Fatal(err.Error())
 	}
 }
