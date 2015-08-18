@@ -16,7 +16,6 @@ var DB gorm.DB
 
 // Connect establishes the database connection and sets some default options
 func Connect() {
-	// TODO: 12 factor connection string to postgres connection string conversion
 	var err error
 	DB, err = gorm.Open("postgres", config.Config.DatabaseURL)
 	if err != nil {
