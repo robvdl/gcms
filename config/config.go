@@ -2,11 +2,12 @@ package config
 
 import (
 	"log"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
+
+	"github.com/robvdl/gcms/util"
 )
 
 // AppConfig struct is for storing application configuration
@@ -24,15 +25,13 @@ var Config AppConfig
 // If neither was found we rely entiry on environment variables (12-factor).
 func LoadAppConfig(project string) {
 	filename := "/etc/default/" + project
-	if _, err := os.Stat(filename); os.IsNotExist(err) {
+	if util.Exists(filename) {
+		loadEnvConfig(filename)
+	} else {
 		filename = ".env"
-		if _, err := os.Stat(filename); os.IsNotExist(err) {
-			log.Printf("No configuration file used, using environment variables only")
-		} else {
+		if util.Exists(filename) {
 			loadEnvConfig(filename)
 		}
-	} else {
-		loadEnvConfig(filename)
 	}
 
 	// envconfig then loads environment variables into the Config struct
@@ -51,9 +50,6 @@ func LoadAppConfig(project string) {
 
 // loadEnvConfig loads an environment configuration file into the Config struct
 func loadEnvConfig(filename string) {
-	log.Printf("Loading environment configuration file: %s", filename)
-
-	// godotenv reads a config file into environment variables first
 	err := godotenv.Load(filename)
 	if err != nil {
 		log.Fatal(err.Error())
