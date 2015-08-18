@@ -29,7 +29,6 @@ func main() {
 
 	// establish database connection after config file is loaded
 	db.Connect()
-	db.Migrate()
 
 	// Defines a cli application
 	app := cli.NewApp()
@@ -38,6 +37,8 @@ func main() {
 	app.Version = AppVersion
 	app.Commands = []cli.Command{
 		cmd.CmdWeb,
+		cmd.CmdCreateSuperuser,
+		cmd.CmdMigrate,
 	}
 
 	app.Run(os.Args)
