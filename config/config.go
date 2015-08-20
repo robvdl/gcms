@@ -24,15 +24,7 @@ var Config AppConfig
 // if that exists, otherwise it will try .env in the current directory.
 // If neither was found we rely entiry on environment variables (12-factor).
 func LoadAppConfig(project string) {
-	filename := "/etc/default/" + project
-	if util.Exists(filename) {
-		loadEnvConfig(filename)
-	} else {
-		filename = ".env"
-		if util.Exists(filename) {
-			loadEnvConfig(filename)
-		}
-	}
+	loadEnvConfig("/etc/default/"+project, ".env")
 
 	// envconfig then loads environment variables into the Config struct
 	err := envconfig.Process(project, &Config)
@@ -48,10 +40,23 @@ func LoadAppConfig(project string) {
 	}
 }
 
-// loadEnvConfig loads an environment configuration file into the Config struct
-func loadEnvConfig(filename string) {
-	err := godotenv.Load(filename)
-	if err != nil {
-		log.Fatal(err.Error())
+// loadEnvConfig takes a list of config file paths, it will try to load
+// the first one it can find and returns either true if a config file was
+// loaded or false if none of the config files existed.  It will only ever
+// load one config file and return.  A config file that cannot be read
+// properly will throw an error.
+func loadEnvConfig(filenames ...string) bool {
+	for _, filename := range filenames {
+		if util.Exists(filename) {
+			err := godotenv.Load(filename)
+
+			// if the config file cannot be read we want to know about it
+			if err != nil {
+				log.Fatal(err.Error())
+			} else {
+				return true
+			}
+		}
 	}
+	return false
 }
