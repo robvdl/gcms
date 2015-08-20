@@ -71,19 +71,16 @@ func (u *User) CheckPassword(password string) bool {
 
 	iterations, err := strconv.Atoi(parts[1])
 	if err != nil {
-		log.Fatal(err.Error())
 		return false
 	}
 
 	salt, err := hex.DecodeString(parts[2])
 	if err != nil {
-		log.Fatal(err.Error())
 		return false
 	}
 
 	hash, err := hex.DecodeString(parts[3])
 	if err != nil {
-		log.Fatal(err.Error())
 		return false
 	}
 
