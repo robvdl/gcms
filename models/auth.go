@@ -64,6 +64,11 @@ func (u *User) CheckPassword(password string) bool {
 	parts := strings.Split(u.Password, "$")
 	hashAlg := parts[0]
 
+	// nothing else is supported for the moment
+	if hashAlg != "pbkdf2-sha256" {
+		return false
+	}
+
 	iterations, err := strconv.Atoi(parts[1])
 	if err != nil {
 		log.Fatal(err.Error())
