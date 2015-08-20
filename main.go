@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"path"
-	"runtime"
 
 	"github.com/codegangsta/cli"
 	_ "github.com/lib/pq"
@@ -15,12 +14,6 @@ import (
 
 // AppVersion is the application version, build this from Git tag later
 const AppVersion = "0.1"
-
-func init() {
-	// As of Go 1.5 this will be the default so we won't need to do this anymore
-	// Before Go 1.5, this actually defaults to 1 CPU unless you do this.
-	runtime.GOMAXPROCS(runtime.NumCPU())
-}
 
 func main() {
 	// load config file based in project name
