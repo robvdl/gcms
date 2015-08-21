@@ -14,7 +14,13 @@ import (
 type AppConfig struct {
 	Debug       bool   `default:"true"`
 	Port        string `default:"8080"`
-	DatabaseURL string `envconfig:"DB"`
+	DatabaseURL string `envconfig:"db"`
+
+	// Note that the underscores are only needed due to a envconfig issue
+	// see bug: https://github.com/kelseyhightower/envconfig/issues/26
+	Password_Algorithm  string `default:"pbkdf2-sha256"`
+	Password_Iterations int    `default:"12000"`
+	Password_Salt_Size  int    `default:"6"`
 }
 
 // Config stores the global application configuration instance

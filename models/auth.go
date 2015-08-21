@@ -3,14 +3,18 @@ package models
 import (
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
+	"hash"
 	"log"
 	"strconv"
 	"strings"
 	"time"
 
 	"golang.org/x/crypto/pbkdf2"
+
+	"github.com/robvdl/gcms/config"
 )
 
 // User is a user that can log into the cms
@@ -41,21 +45,33 @@ type Permission struct {
 	Description string `sql:"type:text"`
 }
 
+// list of supported password algorithms represented by a map[string]bool
+var algorithms = map[string]bool{
+	"pbkdf2-sha256": true,
+	"pbkdf2-sha384": true,
+	"pbkdf2-sha512": true,
+}
+
 // SetPassword creates a password has and updates the user
-// For the time being it is only capable of doing pbkdf2-sha256
 func (u *User) SetPassword(password string) {
-	hashAlg := "pbkdf2-sha256"
-	salt := make([]byte, 10)
+	// There is no point continuing if the hash algorithm setting is wrong.
+	if !algorithms[config.Config.Password_Algorithm] {
+		log.Fatal("Unsupported password algorithm: " + config.Config.Password_Algorithm)
+	}
+
+	// the salt comes from urandom
+	salt := make([]byte, config.Config.Password_Salt_Size)
 	_, err := rand.Read(salt)
 	if err != nil {
 		log.Fatal(err.Error())
-		return
 	}
 
-	// TODO: allow switching between pbkdf2-sha256 and bcrypt eventually
-	iterations := 12000
-	hash := pbkdf2.Key([]byte(password), salt, iterations, sha256.Size, sha256.New)
-	u.Password = createPasswordString(hashAlg, iterations, salt, hash)
+	u.Password = createPasswordString(
+		password,
+		config.Config.Password_Algorithm,
+		config.Config.Password_Iterations,
+		salt,
+	)
 }
 
 // CheckPassword checks a password against the password hash stored
@@ -64,8 +80,8 @@ func (u *User) CheckPassword(password string) bool {
 	parts := strings.Split(u.Password, "$")
 	hashAlg := parts[0]
 
-	// nothing else is supported for the moment
-	if hashAlg != "pbkdf2-sha256" {
+	// if we don't know this algorithm, just return false
+	if !algorithms[hashAlg] {
 		return false
 	}
 
@@ -79,15 +95,29 @@ func (u *User) CheckPassword(password string) bool {
 		return false
 	}
 
-	hash, err := hex.DecodeString(parts[3])
-	if err != nil {
-		return false
-	}
-
-	hash = pbkdf2.Key([]byte(password), salt, iterations, sha256.Size, sha256.New)
-	return u.Password == createPasswordString(hashAlg, iterations, salt, hash)
+	return u.Password == createPasswordString(password, hashAlg, iterations, salt)
 }
 
-func createPasswordString(hashAlg string, iterations int, salt, hash []byte) string {
-	return fmt.Sprintf("%s$%d$%x$%x", hashAlg, iterations, salt, hash)
+// createPasswordString is an internal function that creates the encoded
+// password string, it tries to follow the same encoded format as Django,
+// the advantage is that you can easily import users from Django.
+func createPasswordString(password, hashAlg string, iterations int, salt []byte) string {
+	var keyLength int
+	var hashFunc func() hash.Hash
+
+	if hashAlg == "pbkdf2-sha256" {
+		keyLength = sha256.Size
+		hashFunc = sha256.New
+	} else if hashAlg == "pbkdf2-sha384" {
+		keyLength = sha512.Size384
+		hashFunc = sha512.New384
+	} else if hashAlg == "pbkdf2-sha512" {
+		keyLength = sha512.Size
+		hashFunc = sha512.New
+	} else {
+		log.Fatal("Unsupported password algorithm: " + hashAlg)
+	}
+
+	key := pbkdf2.Key([]byte(password), salt, config.Config.Password_Iterations, keyLength, hashFunc)
+	return fmt.Sprintf("%s$%d$%x$%x", hashAlg, iterations, salt, key)
 }
