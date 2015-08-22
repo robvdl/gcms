@@ -77,7 +77,7 @@ func (u *User) SetPassword(password string) {
 }
 
 // CheckPassword checks a password against the password hash stored
-// on the user object, for the time being it can only do pbkdf2-sha256
+// on the user object.
 func (u *User) CheckPassword(password string) bool {
 	parts := strings.Split(u.Password, "$")
 	hashAlg := parts[0]
