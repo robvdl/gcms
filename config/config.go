@@ -19,8 +19,9 @@ type AppConfig struct {
 	// Note that the underscores are only needed due to a envconfig issue
 	// see bug: https://github.com/kelseyhightower/envconfig/issues/26
 	Password_Algorithm  string `default:"pbkdf2-sha256"`
-	Password_Iterations int    `default:"12000"`
-	Password_Salt_Size  int    `default:"6"`
+	Password_Iterations int    `default:"12000"` // used by pbkdf2
+	Password_Salt_Size  int    `default:"6"`     // salt size used by pbkdf2
+	Password_Cost       int    `default:"10"`    // cost is used by bcrypt
 }
 
 // Config stores the global application configuration instance

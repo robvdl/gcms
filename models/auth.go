@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/pbkdf2"
 
 	"github.com/robvdl/gcms/config"
@@ -47,6 +48,7 @@ type Permission struct {
 
 // list of supported password algorithms represented by a map[string]bool
 var algorithms = map[string]bool{
+	"bcrypt":        true,
 	"pbkdf2-sha256": true,
 	"pbkdf2-sha384": true,
 	"pbkdf2-sha512": true,
@@ -59,19 +61,19 @@ func (u *User) SetPassword(password string) {
 		log.Fatal("Unsupported password algorithm: " + config.Config.Password_Algorithm)
 	}
 
-	// the salt comes from urandom
-	salt := make([]byte, config.Config.Password_Salt_Size)
-	_, err := rand.Read(salt)
-	if err != nil {
-		log.Fatal(err.Error())
+	if config.Config.Password_Algorithm == "bcrypt" {
+		u.Password = bcryptPasswordString(
+			password,
+			config.Config.Password_Cost,
+		)
+	} else if strings.HasPrefix(config.Config.Password_Algorithm, "pbkdf2") {
+		u.Password = pbkdf2PasswordString(
+			password,
+			config.Config.Password_Algorithm,
+			config.Config.Password_Iterations,
+			pkbdf2GenSalt(config.Config.Password_Salt_Size),
+		)
 	}
-
-	u.Password = createPasswordString(
-		password,
-		config.Config.Password_Algorithm,
-		config.Config.Password_Iterations,
-		salt,
-	)
 }
 
 // CheckPassword checks a password against the password hash stored
@@ -85,23 +87,39 @@ func (u *User) CheckPassword(password string) bool {
 		return false
 	}
 
-	iterations, err := strconv.Atoi(parts[1])
-	if err != nil {
-		return false
-	}
+	if hashAlg == "bcrypt" {
+		hashedPassword := []byte(u.Password)[6:] // first 6 bytes are bcrypt
+		return bcrypt.CompareHashAndPassword(hashedPassword, []byte(password)) == nil
+	} else if strings.HasPrefix(hashAlg, "pbkdf2") {
+		iterations, err := strconv.Atoi(parts[1])
+		if err != nil {
+			return false
+		}
 
-	salt, err := hex.DecodeString(parts[2])
-	if err != nil {
-		return false
-	}
+		salt, err := hex.DecodeString(parts[2])
+		if err != nil {
+			return false
+		}
 
-	return u.Password == createPasswordString(password, hashAlg, iterations, salt)
+		return u.Password == pbkdf2PasswordString(password, hashAlg, iterations, salt)
+	}
+	return false
 }
 
-// createPasswordString is an internal function that creates the encoded
+// bcryptPasswordString is an internal function that generates a bcrypt
+// encoded password string.
+func bcryptPasswordString(password string, cost int) string {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), config.Config.Password_Cost)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	return fmt.Sprintf("bcrypt%s", hashedPassword)
+}
+
+// pbkdf2PasswordString is an internal function that creates an pkbdf2 encoded
 // password string, it tries to follow the same encoded format as Django,
 // the advantage is that you can easily import users from Django.
-func createPasswordString(password, hashAlg string, iterations int, salt []byte) string {
+func pbkdf2PasswordString(password, hashAlg string, iterations int, salt []byte) string {
 	var keyLength int
 	var hashFunc func() hash.Hash
 
@@ -120,4 +138,15 @@ func createPasswordString(password, hashAlg string, iterations int, salt []byte)
 
 	key := pbkdf2.Key([]byte(password), salt, config.Config.Password_Iterations, keyLength, hashFunc)
 	return fmt.Sprintf("%s$%d$%x$%x", hashAlg, iterations, salt, key)
+}
+
+// pbkdf2GenSalt is an internal function that generates a salt using
+// crypto/rand of the given size, this is not needed for bcrypt.
+func pkbdf2GenSalt(size int) []byte {
+	salt := make([]byte, size)
+	_, err := rand.Read(salt)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	return salt
 }
