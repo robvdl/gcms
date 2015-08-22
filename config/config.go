@@ -10,14 +10,22 @@ import (
 	"github.com/robvdl/gcms/util"
 )
 
-// AppConfig struct is for storing application configuration
+// AppConfig struct is for storing application configuration.
+// Note that the underscores are only needed due to a envconfig issue
+// see bug: https://github.com/kelseyhightower/envconfig/issues/26
 type AppConfig struct {
-	Debug       bool   `default:"true"`
-	Port        string `default:"8080"`
-	DatabaseURL string `envconfig:"db"`
+	// general app settings
+	Debug bool   `default:"true"`
+	Port  string `default:"8080"`
 
-	// Note that the underscores are only needed due to a envconfig issue
-	// see bug: https://github.com/kelseyhightower/envconfig/issues/26
+	// database connection string
+	Database_URL string
+
+	// cache and session
+	Cache_URL      string
+	Session_Secret string
+
+	// password encryption settings
 	Password_Algorithm  string `default:"pbkdf2-sha256"`
 	Password_Iterations int    `default:"12000"` // used by pbkdf2
 	Password_Salt_Size  int    `default:"6"`     // salt size used by pbkdf2

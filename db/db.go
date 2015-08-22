@@ -17,7 +17,7 @@ var DB gorm.DB
 // Connect establishes the database connection and sets some default options
 func Connect() {
 	var err error
-	DB, err = gorm.Open("postgres", config.Config.DatabaseURL)
+	DB, err = gorm.Open("postgres", config.Config.Database_URL)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
