@@ -15,7 +15,6 @@ import (
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var userID uint
-		var user models.User
 		session := sessions.Default(c)
 
 		// grab userID from session
@@ -28,6 +27,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		// a valid userID starts at 1, 0 is an unauthenticated user
 		if userID > 0 {
+			var user models.User
 			db.DB.Where("id = ?", userID).First(&user)
 			c.Set("user", &user)
 		} else {
