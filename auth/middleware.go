@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/robvdl/gcms/db"
-	"github.com/robvdl/gcms/models"
 )
 
 // UserMiddleware gets the current user object from the database that
@@ -27,7 +26,7 @@ func UserMiddleware() gin.HandlerFunc {
 
 		// a valid userID starts at 1, 0 is an unauthenticated user
 		if userID > 0 {
-			var user models.User
+			var user User
 			db.DB.Where("id = ?", userID).First(&user)
 			c.Set("user", &user)
 		} else {

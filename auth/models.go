@@ -1,26 +1,21 @@
-package models
+package auth
 
 import (
-	"crypto/rand"
-	"crypto/sha256"
-	"crypto/sha512"
 	"encoding/hex"
-	"fmt"
-	"hash"
 	"log"
 	"strconv"
 	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
-	"golang.org/x/crypto/pbkdf2"
 
 	"github.com/robvdl/gcms/config"
+	"github.com/robvdl/gcms/db"
 )
 
 // User is a user that can log into the cms
 type User struct {
-	Model
+	db.Model
 	Username    string `sql:"size:100;unique_index"`
 	FirstName   string `sql:"size:100"`
 	LastName    string `sql:"size:100"`
@@ -34,14 +29,14 @@ type User struct {
 
 // Group is a container for permissions
 type Group struct {
-	Model
+	db.Model
 	Name        string       `sql:"size:100;unique_index"`
 	Permissions []Permission `gorm:"many2many:group_permission"`
 }
 
 // Permission has a name and description
 type Permission struct {
-	Model
+	db.Model
 	Name        string `sql:"size:100;unique_index"`
 	Description string `sql:"type:text"`
 }
@@ -104,49 +99,4 @@ func (u *User) CheckPassword(password string) bool {
 		return u.Password == pbkdf2PasswordString(password, hashAlg, iterations, salt)
 	}
 	return false
-}
-
-// bcryptPasswordString is an internal function that generates a bcrypt
-// encoded password string.
-func bcryptPasswordString(password string, cost int) string {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), config.Config.Password_Cost)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	return fmt.Sprintf("bcrypt%s", hashedPassword)
-}
-
-// pbkdf2PasswordString is an internal function that creates an pkbdf2 encoded
-// password string, it tries to follow the same encoded format as Django,
-// the advantage is that you can easily import users from Django.
-func pbkdf2PasswordString(password, hashAlg string, iterations int, salt []byte) string {
-	var keyLength int
-	var hashFunc func() hash.Hash
-
-	if hashAlg == "pbkdf2-sha256" {
-		keyLength = sha256.Size
-		hashFunc = sha256.New
-	} else if hashAlg == "pbkdf2-sha384" {
-		keyLength = sha512.Size384
-		hashFunc = sha512.New384
-	} else if hashAlg == "pbkdf2-sha512" {
-		keyLength = sha512.Size
-		hashFunc = sha512.New
-	} else {
-		log.Fatal("Unsupported password algorithm: " + hashAlg)
-	}
-
-	key := pbkdf2.Key([]byte(password), salt, config.Config.Password_Iterations, keyLength, hashFunc)
-	return fmt.Sprintf("%s$%d$%x$%x", hashAlg, iterations, salt, key)
-}
-
-// pbkdf2GenSalt is an internal function that generates a salt using
-// crypto/rand of the given size, this is not needed for bcrypt.
-func pkbdf2GenSalt(size int) []byte {
-	salt := make([]byte, size)
-	_, err := rand.Read(salt)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	return salt
 }

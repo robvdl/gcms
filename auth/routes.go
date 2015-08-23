@@ -5,12 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/robvdl/gcms/db"
-	"github.com/robvdl/gcms/models"
 )
 
 // APILogin is the hander for the login API
 func APILogin(c *gin.Context) {
-	var user models.User
+	var user User
 	session := sessions.Default(c)
 
 	// pretend we are admin

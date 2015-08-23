@@ -3,8 +3,8 @@ package cmd
 import (
 	"github.com/codegangsta/cli"
 
+	"github.com/robvdl/gcms/auth"
 	"github.com/robvdl/gcms/db"
-	"github.com/robvdl/gcms/models"
 )
 
 // CmdWeb starts the web server
@@ -18,7 +18,7 @@ var CmdCreateSuperuser = cli.Command{
 
 // create a hardcoded superuser for now
 func createSuperuser(ctx *cli.Context) {
-	user := models.User{Username: "admin", IsActive: true, IsSuperuser: true}
+	user := auth.User{Username: "admin", IsActive: true, IsSuperuser: true}
 	user.SetPassword("password")
 	db.DB.Create(&user)
 }
