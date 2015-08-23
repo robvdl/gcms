@@ -18,3 +18,8 @@ func bcryptPasswordString(password string, cost int) string {
 	}
 	return fmt.Sprintf("bcrypt%s", hashedPassword)
 }
+
+// bcryptCheckPassword checks a password hash against a password.
+func bcryptCheckPassword(hashedPassword, password string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword)[6:], []byte(password)) == nil
+}

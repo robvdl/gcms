@@ -4,9 +4,12 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"crypto/sha512"
+	"encoding/hex"
 	"fmt"
 	"hash"
 	"log"
+	"strconv"
+	"strings"
 
 	"golang.org/x/crypto/pbkdf2"
 
@@ -46,4 +49,22 @@ func pkbdf2GenSalt(size int) []byte {
 		log.Fatal(err.Error())
 	}
 	return salt
+}
+
+// pbkdf2CheckPassword checks a password hash against a password.
+func pbkdf2CheckPassword(hashedPassword, password string) bool {
+	parts := strings.Split(hashedPassword, "$")
+	hashAlg := parts[0]
+
+	iterations, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return false
+	}
+
+	salt, err := hex.DecodeString(parts[2])
+	if err != nil {
+		return false
+	}
+
+	return hashedPassword == pbkdf2PasswordString(password, hashAlg, iterations, salt)
 }
