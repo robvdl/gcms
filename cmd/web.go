@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"github.com/codegangsta/cli"
+	"github.com/gin-gonic/contrib/sessions"
+	"github.com/gin-gonic/gin"
 
+	"github.com/robvdl/gcms/auth"
 	"github.com/robvdl/gcms/config"
-	"github.com/robvdl/gcms/router"
 )
 
 // CmdWeb starts the web server
@@ -16,7 +18,26 @@ var CmdWeb = cli.Command{
 	Flags:       []cli.Flag{},
 }
 
+// setupMiddleware is an internal method where we setup GIN middleware
+func setupMiddleware(r *gin.Engine) {
+	// TODO: CACHE_URL should come from an environment variable but this requires
+	// validating and parsing of the connection url into it's base components.
+	store, _ := sessions.NewRedisStore(10, "tcp", "localhost:6379", "", []byte(config.Config.Session_Secret))
+	r.Use(sessions.Sessions("session", store))
+	r.Use(auth.UserMiddleware())
+}
+
+// setupRoutes is an internal method where we setup application routes
+func setupRoutes(r *gin.Engine) {
+	r.GET("/", auth.APIStatus)
+	r.GET("/login", auth.APILogin)
+	r.GET("/logout", auth.APILogout)
+}
+
+// runWeb is an starts the GIN application
 func runWeb(ctx *cli.Context) {
-	r := router.NewRouter()
+	r := gin.Default()
+	setupMiddleware(r)
+	setupRoutes(r)
 	r.Run(":" + config.Config.Port)
 }

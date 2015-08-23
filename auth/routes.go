@@ -25,11 +25,10 @@ func APILogin(c *gin.Context) {
 
 // APIStatus is a temporary URL to show the status of the session
 func APIStatus(c *gin.Context) {
-	v := c.MustGet("user")
-	if v == nil {
+	user := AuthenticatedUser(c)
+	if user == nil {
 		c.JSON(200, gin.H{"status": "OK", "authenticated": false})
 	} else {
-		user := v.(*models.User)
 		c.JSON(200, gin.H{"status": "OK", "authenticated": true, "user": user.Username})
 	}
 }

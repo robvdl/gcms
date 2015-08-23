@@ -1,4 +1,4 @@
-package middleware
+package auth
 
 import (
 	"github.com/gin-gonic/contrib/sessions"
@@ -8,11 +8,11 @@ import (
 	"github.com/robvdl/gcms/models"
 )
 
-// AuthMiddleware gets the current user object from the database that
+// UserMiddleware gets the current user object from the database that
 // matches userID from the session, it then sets it on the gin context.
 // This allows the user to be used throughout the application without
 // needing to query it again each time it is needed.
-func AuthMiddleware() gin.HandlerFunc {
+func UserMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var userID uint
 		session := sessions.Default(c)
