@@ -44,5 +44,5 @@ func Logout(c *gin.Context) {
 	session.Set("userID", userID)
 	session.Save()
 
-	c.JSON(200, gin.H{"status": "OK"})
+	c.JSON(http.StatusOK, gin.H{"status": "OK"})
 }
