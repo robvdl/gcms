@@ -7,6 +7,8 @@ import (
 	"github.com/robvdl/gcms/db"
 )
 
+// These are older routes used for testing, these will be removed eventually.
+
 // APILogin is the hander for the login API
 func APILogin(c *gin.Context) {
 	var user User

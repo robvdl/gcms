@@ -32,6 +32,13 @@ func setupRoutes(r *gin.Engine) {
 	r.GET("/", auth.APIStatus)
 	r.GET("/login", auth.APILogin)
 	r.GET("/logout", auth.APILogout)
+
+	// session resource
+	session := r.Group("/api/session")
+	{
+		session.POST("", auth.Login)
+		session.DELETE("", auth.Logout)
+	}
 }
 
 // runWeb is an starts the GIN application

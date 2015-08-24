@@ -58,7 +58,7 @@ func (u *User) SetPassword(password string) {
 func (u *User) CheckPassword(password string) bool {
 	if strings.HasPrefix(u.Password, "bcrypt") {
 		return bcryptCheckPassword(u.Password, password)
-	} else if strings.HasPrefix(u.Password, "pkbdf2") {
+	} else if strings.HasPrefix(u.Password, "pbkdf2") {
 		return pbkdf2CheckPassword(u.Password, password)
 	}
 	return false
