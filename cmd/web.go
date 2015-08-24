@@ -29,11 +29,9 @@ func setupMiddleware(r *gin.Engine) {
 
 // setupRoutes is an internal method where we setup application routes
 func setupRoutes(r *gin.Engine) {
-	r.GET("/", auth.APIStatus)
-	r.GET("/login", auth.APILogin)
-	r.GET("/logout", auth.APILogout)
+	// TODO: we probably need something temporary for the / URL
 
-	// session resource
+	// session is a special api resource with POST and DELETE endpoints
 	session := r.Group("/api/session")
 	{
 		session.POST("", auth.Login)
