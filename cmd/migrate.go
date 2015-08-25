@@ -6,6 +6,7 @@ import (
 	"github.com/codegangsta/cli"
 
 	"github.com/robvdl/gcms/auth"
+	"github.com/robvdl/gcms/blog"
 	"github.com/robvdl/gcms/db"
 )
 
@@ -23,17 +24,22 @@ func migrate(ctx *cli.Context) {
 		&auth.Permission{},
 		&auth.Group{},
 		&auth.User{},
+
+		&blog.Category{},
+		&blog.Blog{},
+		&blog.Post{},
 	)
 
 	// the ugly workaround, just until Gorm does these it itself
-	addBridgeTableConstraints("group", "permission")
-	addBridgeTableConstraints("user", "group")
+	addBridgeTableConstraints("auth_", "group", "permission")
+	addBridgeTableConstraints("auth_", "user", "group")
+	addBridgeTableConstraints("blog_", "post", "category")
 }
 
 // addBridgeTableConstraints adds in the missing primary and foreign key
 // relationships in bridge tables created by gorm (see issue #619)
-func addBridgeTableConstraints(parent, child string) {
-	bridgeTable := parent + "_" + child
+func addBridgeTableConstraints(prefix, parent, child string) {
+	bridgeTable := prefix + parent + "_" + child
 
 	var constraintExists int
 	db.DB.Table("pg_constraint").Select("1").Where("conname = '" + bridgeTable + "_pkey'").Count(&constraintExists)
@@ -44,7 +50,7 @@ func addBridgeTableConstraints(parent, child string) {
 		addFK := "ALTER TABLE %s ADD CONSTRAINT %s_fkey FOREIGN KEY (%s) REFERENCES \"%s\" (id)"
 
 		db.DB.Exec(fmt.Sprintf(addPK, bridgeTable, bridgeTable, parentID, childID))
-		db.DB.Exec(fmt.Sprintf(addFK, bridgeTable, parent, parentID, parent))
-		db.DB.Exec(fmt.Sprintf(addFK, bridgeTable, child, childID, child))
+		db.DB.Exec(fmt.Sprintf(addFK, bridgeTable, parent, parentID, prefix+parent))
+		db.DB.Exec(fmt.Sprintf(addFK, bridgeTable, child, childID, prefix+child))
 	}
 }

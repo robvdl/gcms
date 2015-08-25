@@ -19,14 +19,14 @@ type User struct {
 	IsActive    bool
 	IsSuperuser bool
 	LastLogin   time.Time
-	Groups      []Group `gorm:"many2many:user_group"`
+	Groups      []Group `gorm:"many2many:auth_user_group"`
 }
 
 // Group is a container for permissions
 type Group struct {
 	db.Model
 	Name        string       `sql:"size:100;unique_index"`
-	Permissions []Permission `gorm:"many2many:group_permission"`
+	Permissions []Permission `gorm:"many2many:auth_group_permission"`
 }
 
 // Permission has a name and description
@@ -34,6 +34,21 @@ type Permission struct {
 	db.Model
 	Name        string `sql:"size:100;unique_index"`
 	Description string `sql:"type:text"`
+}
+
+// TableName returns the table name gorm should use for the User model
+func (u *User) TableName() string {
+	return "auth_user"
+}
+
+// TableName returns the table name gorm should use for the Group model
+func (g *Group) TableName() string {
+	return "auth_group"
+}
+
+// TableName returns the table name gorm should use for the Permission model
+func (p *Permission) TableName() string {
+	return "auth_permission"
 }
 
 // SetPassword creates a password has and updates the user
