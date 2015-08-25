@@ -18,7 +18,7 @@ type Category struct {
 	Description string `sql:"type:text"`
 }
 
-// Post is a blog post, it can only below to one Blog using one to many.
+// Post is a blog post, it can only belong to one Blog using one to many.
 type Post struct {
 	db.Model
 	BlogID     uint `sql:"index"`
@@ -29,7 +29,7 @@ type Post struct {
 }
 
 // TableName returns the table name gorm should use for the Post model
-func (b *Post) TableName() string {
+func (p *Post) TableName() string {
 	return "blog_post"
 }
 

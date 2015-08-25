@@ -8,6 +8,7 @@ import (
 	"github.com/robvdl/gcms/auth"
 	"github.com/robvdl/gcms/blog"
 	"github.com/robvdl/gcms/db"
+	"github.com/robvdl/gcms/gallery"
 )
 
 // CmdMigrate runs gorm AutoMigrate to create the database tables
@@ -26,14 +27,19 @@ func migrate(ctx *cli.Context) {
 		&auth.User{},
 
 		&blog.Category{},
-		&blog.Blog{},
 		&blog.Post{},
+		&blog.Blog{},
+
+		&gallery.Photo{},
+		&gallery.Album{},
+		&gallery.Gallery{},
 	)
 
 	// the ugly workaround, just until Gorm does these it itself
 	addBridgeTableConstraints("auth_", "group", "permission")
 	addBridgeTableConstraints("auth_", "user", "group")
 	addBridgeTableConstraints("blog_", "post", "category")
+	addBridgeTableConstraints("gallery_", "album", "photo")
 }
 
 // addBridgeTableConstraints adds in the missing primary and foreign key
