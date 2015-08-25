@@ -17,7 +17,7 @@ type Album struct {
 	Name        string
 	Slug        string  `sql:"unique_index"`
 	Description string  `sql:"type:text"`
-	Photos      []Photo // One-To-Many relationship to Album
+	Photos      []Photo // One-To-Many relationship to Photo
 }
 
 // Photo is a photo object in an Album, it can only be in one Album
