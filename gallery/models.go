@@ -17,12 +17,13 @@ type Album struct {
 	Name        string
 	Slug        string  `sql:"unique_index"`
 	Description string  `sql:"type:text"`
-	Photos      []Photo `gorm:"many2many:gallery_album_photo;"`
+	Photos      []Photo // One-To-Many relationship to Album
 }
 
-// Photo is a photo object in an Album
+// Photo is a photo object in an Album, it can only be in one Album
 type Photo struct {
 	db.Model
+	AlbumID     uint `sql:"index"`
 	Filename    string
 	Description string `sql:"type:text"`
 }

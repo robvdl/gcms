@@ -39,7 +39,6 @@ func migrate(ctx *cli.Context) {
 	addBridgeTableConstraints("auth_", "group", "permission")
 	addBridgeTableConstraints("auth_", "user", "group")
 	addBridgeTableConstraints("blog_", "post", "category")
-	addBridgeTableConstraints("gallery_", "album", "photo")
 }
 
 // addBridgeTableConstraints adds in the missing primary and foreign key
