@@ -11,11 +11,11 @@ import (
 // User is a user that can log into the cms
 type User struct {
 	db.Model
-	Username    string `sql:"size:100;unique_index"`
-	FirstName   string `sql:"size:100"`
-	LastName    string `sql:"size:100"`
-	Email       string `sql:"size:100"`
-	Password    string `sql:"size:200"`
+	Username    string `sql:"unique_index"`
+	FirstName   string
+	LastName    string
+	Email       string
+	Password    string
 	IsActive    bool
 	IsSuperuser bool
 	LastLogin   time.Time
@@ -25,14 +25,14 @@ type User struct {
 // Group is a container for permissions
 type Group struct {
 	db.Model
-	Name        string       `sql:"size:100;unique_index"`
+	Name        string       `sql:"unique_index"`
 	Permissions []Permission `gorm:"many2many:auth_group_permission"`
 }
 
 // Permission has a name and description
 type Permission struct {
 	db.Model
-	Name        string `sql:"size:100;unique_index"`
+	Name        string `sql:"unique_index"`
 	Description string `sql:"type:text"`
 }
 
