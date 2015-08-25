@@ -17,23 +17,27 @@ type Album struct {
 	Name        string
 	Slug        string  `sql:"unique_index"`
 	Description string  `sql:"type:text"`
-	Photos      []Photo // One-To-Many relationship to Photo
+	Photos      []Photo `gorm:"many2many:gallery_album_photo;"`
 }
 
-// Photo is a photo object in an Album, it can only be in one Album
+// Photo is a photo object in an Album, it can only be in one Album.
 type Photo struct {
 	db.Model
-	AlbumID     uint `sql:"index"`
 	Filename    string
 	Description string `sql:"type:text"`
 }
 
-// TableName returns the table name gorm should use for the Album model
+// TableName returns the table name gorm should use for the Gallery model.
+func (g *Gallery) TableName() string {
+	return "gallery_gallery"
+}
+
+// TableName returns the table name gorm should use for the Album model.
 func (a *Album) TableName() string {
 	return "gallery_album"
 }
 
-// TableName returns the table name gorm should use for the Photo model
+// TableName returns the table name gorm should use for the Photo model.
 func (p *Photo) TableName() string {
 	return "gallery_photo"
 }
