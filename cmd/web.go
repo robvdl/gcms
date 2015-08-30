@@ -1,15 +1,18 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/codegangsta/cli"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/justinas/nosurf"
+	"github.com/robvdl/pongo2gin"
 
 	"github.com/robvdl/gcms/auth"
 	"github.com/robvdl/gcms/config"
-	"github.com/robvdl/pongo2gin"
 )
 
 // CmdWeb starts the web server
@@ -47,6 +50,13 @@ func setupRoutes(r *gin.Engine) {
 	}
 }
 
+// csrfFailed is called by nosurf when the csrf token check fails
+func csrfFailed(w http.ResponseWriter, r *http.Request) {
+	// Set status code when overriding failure handler or it wil be 200
+	w.WriteHeader(400)
+	fmt.Fprintln(w, nosurf.Reason(r)) // reason of the failure
+}
+
 // runWeb is an starts the GIN application
 func runWeb(ctx *cli.Context) {
 	r := gin.Default()
@@ -55,5 +65,12 @@ func runWeb(ctx *cli.Context) {
 	setupMiddleware(r)
 	setupRoutes(r)
 
-	r.Run(":" + config.Config.Port)
+	// Initialise nosurf for csrf token support.
+	csrfHandler := nosurf.New(r)
+	csrfHandler.SetFailureHandler(http.HandlerFunc(csrfFailed))
+	csrfHandler.ExemptRegexp("/api/(.*)") // ignore API urls for the time being
+
+	// Start the Gin application with nosurf (for csrf protection).
+	// This is an alternative way to start up the Gin application.
+	http.ListenAndServe(":"+config.Config.Port, csrfHandler)
 }

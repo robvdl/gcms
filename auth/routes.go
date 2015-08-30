@@ -6,6 +6,7 @@ import (
 	"github.com/flosch/pongo2"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/justinas/nosurf"
 
 	"github.com/robvdl/gcms/messages"
 )
@@ -69,7 +70,8 @@ func LoginPage(c *gin.Context) {
 	}
 
 	c.HTML(200, "login.html", pongo2.Context{
-		"title":    "Login",
-		"messages": messages.GetMessages(session),
+		"title":      "Login",
+		"messages":   messages.GetMessages(session),
+		"csrf_token": nosurf.Token(c.Request),
 	})
 }

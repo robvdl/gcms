@@ -10,6 +10,7 @@
   <form method="POST" action=".">
     <input type="text" name="username">
     <input type="password" name="password">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <input type="submit" value="Login">
   </form>
 {% endblock %}
