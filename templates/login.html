@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block main %}
+  <h2>Login</h2>
+  {% for message in messages %}
+    {{ message.Type }}: {{ message.Message }}
+  {% endfor %}
+  <form method="POST" action=".">
+    <input type="text" name="username">
+    <input type="password" name="password">
+    <input type="submit" value="Login">
+  </form>
+{% endblock %}

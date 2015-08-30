@@ -78,3 +78,10 @@ func (u *User) CheckPassword(password string) bool {
 	}
 	return false
 }
+
+// GetUserByUsername does a query that returns the User matching that username.
+func GetUserByUsername(username string) *User {
+	var user User
+	db.DB.Where("username = ?", username).First(&user)
+	return &user
+}
