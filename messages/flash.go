@@ -10,14 +10,14 @@ type Message struct {
 }
 
 // Add is a helper function that adds a Message struct as flash message.
-func Add(session sessions.Session, message, messageType string) {
-	session.AddFlash(&Message{
+func Add(s sessions.Session, message, messageType string) {
+	s.AddFlash(&Message{
 		Message: message,
 		Type:    messageType,
 	})
 }
 
 // GetMessages is a Helper function to return all flash messages.
-func GetMessages(session sessions.Session) []interface{} {
-	return session.Flashes()
+func GetMessages(s sessions.Session) []interface{} {
+	return s.Flashes()
 }
