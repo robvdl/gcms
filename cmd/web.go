@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/codegangsta/cli"
+	"github.com/gin-gonic/contrib/secure"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/justinas/nosurf"
@@ -32,8 +33,23 @@ func setupMiddleware(r *gin.Engine) {
 	if err != nil {
 		log.Fatalln("Failed to connect to Redis.", err)
 	}
-	r.Use(sessions.Sessions("session", store))
-	r.Use(auth.UserMiddleware())
+
+	r.Use(
+		secure.Secure(secure.Options{ // TODO: we should get these from config
+			AllowedHosts:          []string{},
+			SSLRedirect:           false,
+			SSLHost:               "",
+			SSLProxyHeaders:       map[string]string{"X-Forwarded-Proto": "https"},
+			STSSeconds:            315360000,
+			STSIncludeSubdomains:  true,
+			FrameDeny:             true,
+			ContentTypeNosniff:    true,
+			BrowserXssFilter:      true,
+			ContentSecurityPolicy: "default-src 'self'",
+		}),
+		sessions.Sessions("session", store),
+		auth.UserMiddleware(),
+	)
 }
 
 // setupRoutes is an internal method where we setup application routes
@@ -52,7 +68,6 @@ func setupRoutes(r *gin.Engine) {
 
 // csrfFailed is called by nosurf when the csrf token check fails
 func csrfFailed(w http.ResponseWriter, r *http.Request) {
-	// Set status code when overriding failure handler or it wil be 200
 	w.WriteHeader(400)
 	fmt.Fprintln(w, nosurf.Reason(r)) // reason of the failure
 }
