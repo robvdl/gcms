@@ -54,6 +54,9 @@ func setupMiddleware(r *gin.Engine) {
 
 // setupRoutes is an internal method where we setup application routes
 func setupRoutes(r *gin.Engine) {
+	// serve static folder
+	r.Static("/static", "./static")
+
 	// FIXME: this is just the temporary location of the login page
 	r.GET("/", auth.LoginPage)
 	r.POST("/", auth.LoginPage)

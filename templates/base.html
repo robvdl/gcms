@@ -4,11 +4,14 @@
 <head>
   <title>{% block title%}{% endblock %}</title>
   <meta charset="utf-8">
+  <link rel="style" href="/static/css/app.css">
 </head>
 
 <body>
   <h1>Test Site</h1>
   {% block main %}{% endblock %}
+  <div id="content"></div>
+  <script src="/static/js/bundle.js"></script>
 </body>
 
 </html>
