@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-{% block title %}{{ title }}{% endblock %}
-
 {% block main %}
   <h2>Login</h2>
   {% for message in messages %}
@@ -13,4 +11,8 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <input type="submit" value="Login">
   </form>
+{% endblock %}
+
+{% block extrascript %}
+  <script src="/static/js/login.js"></script>
 {% endblock %}

@@ -1,10 +1,14 @@
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var webpack = require('webpack'),
+    ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
-  entry: './app/main',
+  entry: {
+    login: './app/login',
+    admin: './app/admin'
+  },
   output: {
     path: '../static',
-    filename: 'js/bundle.js'
+    filename: 'js/[name].js'
   },
   module: {
     loaders: [
@@ -19,7 +23,8 @@ module.exports = {
     ]
   },
   plugins: [
-    new ExtractTextPlugin('css/app.css')
+    new webpack.optimize.CommonsChunkPlugin('common', 'js/common.js'),
+    new ExtractTextPlugin('css/[name].css')
   ],
   cssnext: {
     browsers: 'last 2 versions'

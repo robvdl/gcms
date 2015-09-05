@@ -2,16 +2,17 @@
 <html lang="en">
 
 <head>
-  <title>{% block title%}{% endblock %}</title>
+  <title>{% block title %}{{ title }}{% endblock %}</title>
   <meta charset="utf-8">
-  <link rel="style" href="/static/css/app.css">
+  <link rel="stylesheet" href="/static/css/common.css">
+  {% block extrastyle %}{% endblock %}
 </head>
 
 <body>
-  <h1>Test Site</h1>
   {% block main %}{% endblock %}
-  <div id="content"></div>
-  <script src="/static/js/bundle.js"></script>
+
+  <script src="/static/js/common.js"></script>
+  {% block extrascript %}{% endblock %}
 </body>
 
 </html>

@@ -12,6 +12,7 @@ import (
 	"github.com/justinas/nosurf"
 	"github.com/robvdl/pongo2gin"
 
+	"github.com/robvdl/gcms/admin"
 	"github.com/robvdl/gcms/auth"
 	"github.com/robvdl/gcms/config"
 )
@@ -61,11 +62,18 @@ func setupRoutes(r *gin.Engine) {
 	r.GET("/", auth.LoginPage)
 	r.POST("/", auth.LoginPage)
 
-	// session is a special api resource with POST and DELETE endpoints
-	session := r.Group("/api/session")
+	// sessionResource is a special api resource with POST and DELETE endpoints
+	// doing a POST to this API with a username and password logs a user in,
+	// doing a DELETE to this API logs a user out.
+	sessionResource := r.Group("/api/session")
 	{
-		session.POST("", auth.LoginAPI)
-		session.DELETE("", auth.LogoutAPI)
+		sessionResource.POST("", auth.LoginAPI)
+		sessionResource.DELETE("", auth.LogoutAPI)
+	}
+
+	adminRoutes := r.Group("/admin")
+	{
+		adminRoutes.GET("", admin.AdminPage)
 	}
 }
 
