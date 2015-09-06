@@ -55,25 +55,29 @@ func setupMiddleware(r *gin.Engine) {
 
 // setupRoutes is an internal method where we setup application routes
 func setupRoutes(r *gin.Engine) {
-	// serve static folder
+	// TODO: home route "/" is not yet defined.
+	// r.GET("/", ...)
+
+	// static files served by application
 	r.Static("/static", "./static")
 
-	// FIXME: this is just the temporary location of the login page
-	r.GET("/", auth.LoginPage)
-	r.POST("/", auth.LoginPage)
+	// auth urls for the login form and logout url
+	r.GET("/login", auth.Login)
+	r.POST("/login", auth.Login)
+	r.GET("/logout", auth.Logout)
 
-	// sessionResource is a special api resource with POST and DELETE endpoints
-	// doing a POST to this API with a username and password logs a user in,
-	// doing a DELETE to this API logs a user out.
+	// sessionResource is a special auth api resource, with POST and DELETE
+	// endpoints used for logging a user in or out.
 	sessionResource := r.Group("/api/session")
 	{
 		sessionResource.POST("", auth.LoginAPI)
 		sessionResource.DELETE("", auth.LogoutAPI)
 	}
 
+	// admin urls
 	adminRoutes := r.Group("/admin")
 	{
-		adminRoutes.GET("", admin.AdminPage)
+		adminRoutes.GET("", admin.Admin)
 	}
 }
 

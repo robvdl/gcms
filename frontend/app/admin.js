@@ -1,9 +1,7 @@
-'use strict';
+import './css/app.css';
+import './css/admin.css';
 
-require('./css/app.css');
-require('./css/admin.css');
+import React from 'react';
+import Admin from './components/Admin';
 
-var React = require('react'),
-    Hello = require('./components/Hello');
-
-React.render(<Hello />, document.getElementById('admin'));
+React.render(<Admin />, document.getElementById('admin'));

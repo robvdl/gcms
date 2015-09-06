@@ -7,8 +7,6 @@ import (
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/justinas/nosurf"
-
-	"github.com/robvdl/gcms/messages"
 )
 
 // LoginSchema is the schema for the Login service.
@@ -39,19 +37,23 @@ func LoginAPI(c *gin.Context) {
 
 // LogoutAPI is an API endoint using DELETE to end the current session.
 func LogoutAPI(c *gin.Context) {
-	var userID uint // userID must be a uint
 	session := sessions.Default(c)
+	defer session.Save()
+
+	var userID uint // userID must be a uint, sets userID to 0
 	session.Set("userID", userID)
-	session.Save()
 
 	c.JSON(http.StatusOK, gin.H{"status": "OK"})
 }
 
-// LoginPage is a page with a login form and an alternative to the login API,
+// Login is a page with a login form and an alternative to the login API,
 // this route handles both GET and POST requests.
-func LoginPage(c *gin.Context) {
+func Login(c *gin.Context) {
 	session := sessions.Default(c)
 	defer session.Save()
+
+	// returnURL can come from GET or POST or use default.
+	returnURL := c.DefaultQuery("return_url", c.DefaultPostForm("return_url", "/"))
 
 	if c.Request.Method == "POST" {
 		var schema LoginSchema
@@ -62,16 +64,30 @@ func LoginPage(c *gin.Context) {
 			// If the user exists, the ID is > 0, check the password.
 			if user.ID > 0 && user.CheckPassword(schema.Password) {
 				session.Set("userID", user.ID)
-				messages.Add(session, "Login successful", "info")
-			} else {
-				messages.Add(session, "Invalid username or password", "error")
+				c.Redirect(http.StatusFound, returnURL)
+				return
 			}
+			session.AddFlash("Invalid username or password")
 		}
 	}
 
 	c.HTML(200, "login.html", pongo2.Context{
 		"title":      "Login",
-		"messages":   messages.GetMessages(session),
+		"messages":   session.Flashes(),
 		"csrf_token": nosurf.Token(c.Request),
+		"return_url": returnURL,
 	})
+}
+
+// Logout is a route that logs the current user and redirects to the home page.
+func Logout(c *gin.Context) {
+	session := sessions.Default(c)
+	defer session.Save()
+
+	var userID uint // userID must be a uint, sets userID to 0
+	session.Set("userID", userID)
+
+	// Redirect to / for now.
+	// We might want to support the ?return_url query param also.
+	c.Redirect(http.StatusFound, "/")
 }

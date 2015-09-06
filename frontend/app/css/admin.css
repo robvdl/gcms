@@ -1,17 +1,27 @@
-:root {
-  --mainColor: #ffbbaaff;
+html, body {
+  margin: 0;
+  padding: 0;
 }
 
-@custom-media --mobile (width <= 640px);
-
-@custom-selector :--heading h1, h2, h3, h4, h5, h6;
-
-.post-article :--heading {
-  color: color( var(--mainColor) blackness(+20%) );
+#admin {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
 }
 
-@media (--mobile) {
-  .post-article :--heading {
-    margin-top: 0;
-  }
+.admin-container {
+  display: flex;
+  flex-direction: row;
+  flex: 2;
+  background: silver;
+}
+
+.admin-toolbar {
+  background: yellow;
+  width: 68px;
+}
+
+.admin-content {
+  flex: 1;
+  background: blue;
 }
