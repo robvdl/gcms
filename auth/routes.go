@@ -87,7 +87,7 @@ func Logout(c *gin.Context) {
 	var userID uint // userID must be a uint, sets userID to 0
 	session.Set("userID", userID)
 
-	// Redirect to / for now.
-	// We might want to support the ?return_url query param also.
-	c.Redirect(http.StatusFound, "/")
+	// returnURL can come from GET or POST or use default.
+	returnURL := c.DefaultQuery("return_url", c.DefaultPostForm("return_url", "/"))
+	c.Redirect(http.StatusFound, returnURL)
 }
