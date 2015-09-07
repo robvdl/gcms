@@ -36,3 +36,16 @@ func UserMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// LoginRequired is a middleware that when used on route groups or just
+// individual routes, will redirect to the login screen if not logged in.
+func LoginRequired() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user := AuthenticatedUser(c)
+		if user == nil {
+			RedirectToLogin(c)
+			c.Abort()
+		}
+		c.Next()
+	}
+}

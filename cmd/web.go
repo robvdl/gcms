@@ -75,7 +75,7 @@ func setupRoutes(r *gin.Engine) {
 	}
 
 	// admin urls
-	adminRoutes := r.Group("/admin")
+	adminRoutes := r.Group("/admin", auth.LoginRequired())
 	{
 		adminRoutes.GET("", admin.Admin)
 	}

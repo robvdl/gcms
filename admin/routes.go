@@ -7,12 +7,10 @@ import (
 	"github.com/robvdl/gcms/auth"
 )
 
-// Admin is the cms admin page, it requires a login and will redirect if not.
+// Admin is the cms admin page, it requires a login.
 func Admin(c *gin.Context) {
-	auth.LoginRequired(c, func(user *auth.User) {
-		c.HTML(200, "admin.html", pongo2.Context{
-			"title": "Admin",
-			"user":  user,
-		})
+	c.HTML(200, "admin.html", pongo2.Context{
+		"title": "Admin",
+		"user":  auth.AuthenticatedUser(c),
 	})
 }
