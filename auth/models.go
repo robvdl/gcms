@@ -11,15 +11,15 @@ import (
 // User is a user that can log into the cms
 type User struct {
 	db.Model
-	Username    string `sql:"unique_index"`
-	FirstName   string
-	LastName    string
-	Email       string
-	Password    string
-	IsActive    bool
-	IsSuperuser bool
-	LastLogin   time.Time
-	Groups      []Group `gorm:"many2many:auth_user_group"`
+	Username  string `sql:"unique_index"`
+	FirstName string
+	LastName  string
+	Email     string
+	Password  string
+	Active    bool `gorm:"column:is_active"`
+	Superuser bool `gorm:"column:is_superuser"`
+	LastLogin time.Time
+	Groups    []Group `gorm:"many2many:auth_user_group"`
 }
 
 // Group is a container for permissions
