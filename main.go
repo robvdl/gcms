@@ -30,7 +30,7 @@ func main() {
 	app.Version = AppVersion
 	app.Commands = []cli.Command{
 		cmd.CmdWeb,
-		cmd.CmdCreateSuperuser,
+		cmd.CmdCreateUser,
 		cmd.CmdMigrate,
 	}
 

@@ -1,11 +1,19 @@
 package auth
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 
 	"github.com/robvdl/gcms/db"
 )
+
+// RedirectToLogin redirects to the login screen, populating the return_url
+// with the current http referer url.
+func RedirectToLogin(c *gin.Context) {
+	c.Redirect(http.StatusFound, "/login?return_url="+c.Request.URL.RequestURI())
+}
 
 // UserMiddleware gets the current user object from the database that
 // matches userID from the session, it then sets it on the gin context.

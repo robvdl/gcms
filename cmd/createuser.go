@@ -10,17 +10,17 @@ import (
 	"github.com/robvdl/gcms/db"
 )
 
-// CmdWeb starts the web server
-var CmdCreateSuperuser = cli.Command{
-	Name:        "createsuperuser",
+// CmdCreateUser creates a new superuser
+var CmdCreateUser = cli.Command{
+	Name:        "createuser",
 	Usage:       "Create a new superuser",
 	Description: "Creates a new superuser who can log into admin.",
-	Action:      createSuperuser,
+	Action:      createUser,
 	Flags:       []cli.Flag{},
 }
 
-// Creates a new superuser, asking for a username and password.
-func createSuperuser(ctx *cli.Context) {
+// createUser creates a new superuser, asking for a username and password.
+func createUser(ctx *cli.Context) {
 	var username, email, password, confirmPassword string
 
 	for {
