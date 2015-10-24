@@ -7,3 +7,6 @@ frontend/node_modules
 # these folders are managed by webpack in frontend/webpack.config.js
 static/js
 static/css
+
+# local dev config
+.env
