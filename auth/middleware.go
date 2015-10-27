@@ -7,7 +7,18 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/robvdl/gcms/db"
+	"github.com/robvdl/gcms/models"
 )
+
+// AuthenticatedUser returns the logged in user object or nil if not logged in.
+func AuthenticatedUser(c *gin.Context) *models.User {
+	// user comes from UserMiddleware
+	v := c.MustGet("user")
+	if v == nil {
+		return nil
+	}
+	return v.(*models.User)
+}
 
 // RedirectToLogin redirects to the login screen, populating the return_url
 // with the current http referer url.
@@ -34,7 +45,7 @@ func UserMiddleware() gin.HandlerFunc {
 
 		// a valid userID starts at 1, 0 is an unauthenticated user
 		if userID > 0 {
-			var user User
+			var user models.User
 			db.DB.Where("id = ?", userID).First(&user)
 			c.Set("user", &user)
 		} else {

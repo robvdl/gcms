@@ -7,6 +7,8 @@ import (
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/justinas/nosurf"
+
+	"github.com/robvdl/gcms/db"
 )
 
 // LoginSchema is the schema for the Login service.
@@ -20,10 +22,10 @@ func LoginAPI(c *gin.Context) {
 	var schema LoginSchema
 	if c.Bind(&schema) == nil {
 		// Fetch the user matching this username.
-		user := GetUserByUsername(schema.Username)
+		user := db.GetUserByUsername(schema.Username)
 
 		// If the user exists, the ID is > 0, check the password.
-		if user.ID > 0 && user.CheckPassword(schema.Password) {
+		if user.ID > 0 && CheckPassword(user, schema.Password) {
 			session := sessions.Default(c)
 			session.Set("userID", user.ID)
 			session.Save()
@@ -59,10 +61,10 @@ func Login(c *gin.Context) {
 		var schema LoginSchema
 		if c.Bind(&schema) == nil {
 			// Fetch the user matching this username.
-			user := GetUserByUsername(schema.Username)
+			user := db.GetUserByUsername(schema.Username)
 
 			// If the user exists, the ID is > 0, check the password.
-			if user.ID > 0 && user.CheckPassword(schema.Password) {
+			if user.ID > 0 && CheckPassword(user, schema.Password) {
 				session.Set("userID", user.ID)
 				c.Redirect(http.StatusFound, returnURL)
 				return

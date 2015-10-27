@@ -8,6 +8,7 @@ import (
 
 	"github.com/robvdl/gcms/auth"
 	"github.com/robvdl/gcms/db"
+	"github.com/robvdl/gcms/models"
 )
 
 // CmdCreateUser creates a new superuser
@@ -62,7 +63,12 @@ func createUser(ctx *cli.Context) {
 		}
 	}
 
-	user := auth.User{Username: username, Email: email, Active: true, Superuser: true}
-	user.SetPassword(password)
+	user := models.User{
+		Username:  username,
+		Email:     email,
+		Active:    true,
+		Superuser: true,
+	}
+	auth.SetPassword(&user, password)
 	db.DB.Create(&user)
 }
